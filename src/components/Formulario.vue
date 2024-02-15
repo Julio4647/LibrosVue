@@ -44,7 +44,7 @@
 export default {
   data() {
     return {
-      nuevoLibro: { anio: 0, autor: '', nombre: '', genero: '' },
+      nuevoLibro: { anio: '', autor: '', nombre: '', genero: '' },
       libroEditandoIndex: null,
       libros: [],
       categorias: [1, 2, 3]
