@@ -1,5 +1,20 @@
 <template>
   <div>
+
+    <b-container>
+        <input style="width:400px;" placeholder="Ingresa nombre de Libro a buscar" v-model="nombreLibro">
+        <b-button style="margin:10px;" @click="buscadorNombre">Buscar</b-button>
+        <input style="width:400px;" placeholder="Ingresa nombre de Autor a buscar" v-model="nombreAutor">
+        <b-button style="margin:10px;" @click="buscadorAutor">Buscar</b-button> <br>
+        <b-form-select style="width: 200px;" :options="generos" :value-field="'id'" :text-field="'nombre'" v-model="idGnero"></b-form-select>
+        <b-button style="margin:10px;" @click="buscadorGenero">Buscar</b-button>
+        <input type="number" maxlength="4" style="width:150px;" placeholder="Fecha Inicip" v-model="fechaInicio">
+        <input type="number" maxlength="4" style="width:150px;" placeholder="Fecha Final" v-model="fechafin">
+        <b-button style="margin:10px;" @click="buscadorFecha">Buscar</b-button>
+        <b-button style="margin:10px;" @click="buscadorFechaDesc">Buscar de Manera Descendiente</b-button>
+    </b-container>  
+    <br>
+
     <b-button @click="mostrarModal" style="margin-left: 1000px; background-color:green">Añadir Libro</b-button>
 
     <b-modal ref="modal-1" title="Libro" hide-footer hide-header>
@@ -14,20 +29,22 @@
         <b-form-input v-model="nuevoLibro.nombre"></b-form-input>
 
         <label for="genero">Genero:</label>
-        <b-form-select v-model="nuevoLibro.genero" :options="categorias" required></b-form-select>
+
+        <b-form-select v-model="nuevoLibro.genero" :options="generos" :value-field="'id'" :text-field="'nombre'" required></b-form-select>
+
         <br>   
 
-        <b-button variant="outline-secondary" @click="cerrarModal">Cancelar</b-button>
-        <b-button variant="primary" @click="agregarLibroModal">Agregar</b-button>
+        <b-button variant="outline-secondary" @click="cerrarModal">Cerrar</b-button>
+        <b-button variant="primary" @click="agregarLibroModal">OK</b-button>
       </form>
     </b-modal>
 
     <b-row>
       <b-col v-for="(libro, index) in libros" :key="index" cols="12" sm="6" md="4" lg="3" xl="2">
-        <b-card :title="libro.nombre" :img-src="`https://picsum.photos/400/400/?image=20${index}`" img-alt="Image" img-top
+        <b-card :title="libro.nombre" :img-src="`https://picsum.photos/600/300/?image=${index}`" img-alt="Image" img-top
           tag="article" style="max-width: 20rem;" class="mb-2">
           <b-card-text>
-            <br>
+            {{ libro.nombre }}<br>
             Año: {{ libro.anio }}<br>
             Categoría: {{ libro.genero.nombre }}<br>
             Autor: {{ libro.autor }}
@@ -44,13 +61,75 @@
 export default {
   data() {
     return {
-      nuevoLibro: { anio: '', autor: '', nombre: '', genero: '' },
+      nuevoLibro: { anio: 0, autor: '', nombre: '', genero: '' },
       libroEditandoIndex: null,
+      nombreLibro: '',
+      nombreAutor: '',
+      fechaInicio:'',
+      fechafin:'',
+      idGnero: '',
       libros: [],
+      generos:[],
       categorias: [1, 2, 3]
     };
   },
   methods: {
+    buscadorNombre(){
+      fetch(`http://localhost:8080/api/libreria/libro/name/${this.nombreLibro}`)
+        .then(response => response.json())
+        .then(data => {
+          this.libros = data.data;
+
+        })
+        .catch(error => {
+          console.error('Error al obtener libros:', error);
+        });
+    },
+    buscadorAutor(){
+      fetch(`http://localhost:8080/api/libreria/libro/autor/${this.nombreAutor}`)
+        .then(response => response.json())
+        .then(data => {
+          this.libros = data.data;
+
+        })
+        .catch(error => {
+          console.error('Error al obtener libros:', error);
+        });
+    },
+    buscadorGenero(){
+      fetch(`http://localhost:8080/api/libreria/libro/genero/${this.idGnero}`)
+        .then(response => response.json())
+        .then(data => {
+          this.libros = data.data;
+
+        })
+        .catch(error => {
+          console.error('Error al obtener libros:', error);
+        });
+    },
+    buscadorFecha(){
+      fetch(`http://localhost:8080/api/libreria/libro/anio/${this.fechaInicio}/${this.fechafin}`)
+        .then(response => response.json())
+        .then(data => {
+          this.libros = data.data;
+
+        })
+        .catch(error => {
+          console.error('Error al obtener libros:', error);
+        });
+    },
+    buscadorFechaDesc(){
+      fetch(`http://localhost:8080/api/libreria/libro/anio/desc/`)
+        .then(response => response.json())
+        .then(data => {
+          this.libros = data.data;
+
+        })
+        .catch(error => {
+          console.error('Error al obtener libros:', error);
+        });
+    },
+
     mostrarModal() {
       this.$refs['modal-1'].show();
     },
@@ -72,7 +151,6 @@ export default {
           console.error('Error al obtener libros:', error);
         });
     },
-
     getAllGeneros() {
       fetch('http://localhost:8080/api/libreria/genero/')
         .then(response => response.json())
@@ -85,7 +163,6 @@ export default {
           console.error('Error al obtener libros:', error);
         });
     },
-
 
     createLibro(libro) {
 
@@ -188,7 +265,6 @@ export default {
   mounted() {
     this.getAllLibros();
     this.getAllGeneros();
-
   }
 };
 </script>
